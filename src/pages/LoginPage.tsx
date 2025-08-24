@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { observer } from "mobx-react-lite";
 import { authStore } from "../app/store/auth.store";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import townImg from "../assets/town.jpg";
 import styled from "styled-components";
 
@@ -82,9 +82,18 @@ const ErrorText = styled.div`
 const LoginPage = observer(() => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const navigate = useNavigate();
 
   const handleLogin = async () => {
     await authStore.login(email, password);
+
+    if (authStore.isAuthenticated) {
+      if (authStore.user?.role === "manager") {
+        navigate("/manager");
+      } else {
+        navigate("/user");
+      }
+    }
   };
 
   return (

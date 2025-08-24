@@ -5,7 +5,11 @@ export const AuthService = {
     if (!email || !password) {
       throw new Error("Заполните email и пароль");
     }
-    const { data } = await api.post("/register", { email, password });
+    const { data } = await api.post("/register", {
+      email,
+      password,
+      role: "user",
+    });
     localStorage.setItem("accessToken", data.token);
     return data;
   },
