@@ -1,9 +1,10 @@
 import { makeAutoObservable, runInAction } from "mobx";
 import { AuthService } from "./api.auth";
+import type { User } from "../../interfaces/aurh.interfaces";
 
 class AuthStore {
   isAuthenticated = false;
-  user: any = null;
+  user: User | null = null;
   loading = false;
   error: string | null = null;
 
@@ -12,20 +13,20 @@ class AuthStore {
     this.checkAuth();
   }
 
-  async register(email: string, password: string) {
+  async register(email: string, password: string): Promise<void> {
     this.loading = true;
     this.error = null;
 
     try {
       await AuthService.register(email, password);
-      const me = await AuthService.getMe();
+      const user = await AuthService.getMe();
 
-      if (!me || !me.id) {
+      if (!user || !user.id) {
         throw new Error("Ошибка получения данных пользователя");
       }
 
       runInAction(() => {
-        this.user = me;
+        this.user = user;
         this.isAuthenticated = true;
       });
     } catch (err: any) {
@@ -43,20 +44,20 @@ class AuthStore {
     }
   }
 
-  async login(email: string, password: string) {
+  async login(email: string, password: string): Promise<void> {
     this.loading = true;
     this.error = null;
 
     try {
       await AuthService.login(email, password);
-      const me = await AuthService.getMe();
+      const user = await AuthService.getMe();
 
-      if (!me || !me.id) {
+      if (!user || !user.id) {
         throw new Error("Ошибка получения данных пользователя");
       }
 
       runInAction(() => {
-        this.user = me;
+        this.user = user;
         this.isAuthenticated = true;
       });
     } catch (err: any) {
@@ -74,13 +75,13 @@ class AuthStore {
     }
   }
 
-  async checkAuth() {
+  async checkAuth(): Promise<void> {
     const token = localStorage.getItem("accessToken");
     if (token && token !== "undefined" && token !== "null") {
       try {
-        const me = await AuthService.getMe();
-        if (me?.id) {
-          this.user = me;
+        const user = await AuthService.getMe();
+        if (user?.id) {
+          this.user = user;
           this.isAuthenticated = true;
         } else {
           this.logout();
@@ -91,7 +92,7 @@ class AuthStore {
     }
   }
 
-  logout() {
+  logout(): void {
     this.isAuthenticated = false;
     this.user = null;
     localStorage.removeItem("accessToken");

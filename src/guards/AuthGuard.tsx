@@ -1,14 +1,14 @@
-import { Navigate } from "react-router-dom";
+import { Navigate, Outlet } from "react-router-dom";
 import { authStore } from "../app/store/auth.store";
 import { observer } from "mobx-react-lite";
-import type { ReactNode } from "react";
+import { PATHS } from "../paths";
 
-const AuthGuard = observer(({ children }: { children: ReactNode }) => {
+const AuthGuard = observer(() => {
   if (authStore.loading) return <div>Загрузка...</div>;
   if (!authStore.isAuthenticated) {
-    return <Navigate to="/auth" />;
+    return <Navigate to={PATHS.LOGIN} />; //исправить, что-то неприятное
   }
-  return children;
+  return <Outlet />;
 });
 
 export default AuthGuard;

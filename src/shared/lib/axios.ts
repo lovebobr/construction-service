@@ -1,4 +1,5 @@
 import axios from "axios";
+import { PATHS } from "../../paths";
 export const api = axios.create({
   baseURL: "https://06a06287beb80971.mokky.dev",
 });
@@ -19,8 +20,8 @@ api.interceptors.response.use(
     const originalRequest = error.config;
 
     if (
-      originalRequest.url?.includes("/register") ||
-      originalRequest.url?.includes("/auth")
+      originalRequest.url?.includes(PATHS.REGISTER) ||
+      originalRequest.url?.includes(PATHS.LOGIN)
     ) {
       throw error;
     }
