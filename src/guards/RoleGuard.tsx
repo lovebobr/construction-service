@@ -6,7 +6,7 @@ interface RoleGuardProps {
   role: string;
 }
 const RoleGuard = ({ role }: RoleGuardProps) => {
-  if (authStore.user?.role !== role) return <Navigate to={PATHS.HOME} />;
+  if (authStore.user?.role !== role) return <Navigate to={PATHS.USER} />;
   return <Outlet />;
 };
 

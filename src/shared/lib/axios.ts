@@ -1,6 +1,6 @@
-import axios from "axios";
+import axios, { type AxiosInstance } from "axios";
 import { PATHS } from "../../paths";
-export const api = axios.create({
+export const api: AxiosInstance = axios.create({
   baseURL: "https://06a06287beb80971.mokky.dev",
 });
 

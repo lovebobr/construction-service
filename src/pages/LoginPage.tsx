@@ -12,28 +12,33 @@ import {
   StyledLink,
   ErrorText,
 } from "./Auth.styles";
+import { runInAction } from "mobx";
 
 const LoginPage = observer(() => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
   useEffect(() => {
+    if (authStore.isAuthenticated) {
+      const redirectPath =
+        authStore.user?.role === "manager" ? PATHS.MANAGER : PATHS.USER;
+      navigate(redirectPath, { replace: true });
+    }
+
     return () => {
-      authStore.error = null;
+      runInAction(() => {
+        authStore.error = null;
+      });
     };
-  }, []);
+  }, [authStore.isAuthenticated, navigate]);
+
   const handleLogin = async () => {
     await authStore.login(email, password);
-    console.log("isAuthenticated:", authStore.isAuthenticated);
-    console.log("user:", authStore.user);
 
     if (authStore.isAuthenticated) {
-      if (authStore.user?.role === "manager") {
-        console.log("Навигация на /manager");
-        navigate(PATHS.MANAGER);
-      } else {
-        navigate(PATHS.USER);
-      }
+      const redirectPath =
+        authStore.user?.role === "manager" ? PATHS.MANAGER : PATHS.USER;
+      navigate(redirectPath, { replace: true });
     }
   };
 

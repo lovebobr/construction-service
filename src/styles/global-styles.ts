@@ -40,4 +40,5 @@ export const GlobalStyle = createGlobalStyle`
       background-color: var(--color-bg-dark);
     }
   }
+ 
 `;

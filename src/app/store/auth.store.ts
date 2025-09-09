@@ -18,12 +18,7 @@ class AuthStore {
     this.error = null;
 
     try {
-      await AuthService.register(email, password);
-      const user = await AuthService.getMe();
-
-      if (!user || !user.id) {
-        throw new Error("Ошибка получения данных пользователя");
-      }
+      const user = await AuthService.register(email, password);
 
       runInAction(() => {
         this.user = user;
@@ -49,12 +44,7 @@ class AuthStore {
     this.error = null;
 
     try {
-      await AuthService.login(email, password);
-      const user = await AuthService.getMe();
-
-      if (!user || !user.id) {
-        throw new Error("Ошибка получения данных пользователя");
-      }
+      const user = await AuthService.login(email, password);
 
       runInAction(() => {
         this.user = user;
@@ -76,13 +66,18 @@ class AuthStore {
   }
 
   async checkAuth(): Promise<void> {
+    runInAction(() => {
+      this.loading = true;
+    });
     const token = localStorage.getItem("accessToken");
     if (token && token !== "undefined" && token !== "null") {
       try {
         const user = await AuthService.getMe();
         if (user?.id) {
-          this.user = user;
-          this.isAuthenticated = true;
+          runInAction(() => {
+            this.user = user;
+            this.isAuthenticated = true;
+          });
         } else {
           this.logout();
         }
@@ -90,11 +85,17 @@ class AuthStore {
         this.logout();
       }
     }
+    runInAction(() => {
+      this.loading = false;
+    });
   }
 
   logout(): void {
-    this.isAuthenticated = false;
-    this.user = null;
+    runInAction(() => {
+      this.isAuthenticated = false;
+      this.user = null;
+    });
+
     localStorage.removeItem("accessToken");
   }
 }
