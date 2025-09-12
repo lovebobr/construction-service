@@ -1,7 +1,7 @@
-import { Navigate, Outlet } from "react-router-dom";
+import { Outlet } from "react-router-dom";
 import { authStore } from "../app/store/auth.store";
 import { observer } from "mobx-react-lite";
-import { PATHS } from "../paths";
+// import { PATHS } from "../paths";
 import { useEffect } from "react";
 
 const AuthGuard = observer(() => {

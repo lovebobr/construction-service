@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { getRequestById } from "../api/requestsApi";
 import AppLayout from "../app/components/AppLayout";
+import { PageWrapper, Title } from "./UserPage.styles";
 
 const RequestStatusPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -17,8 +18,8 @@ const RequestStatusPage: React.FC = () => {
 
   return (
     <AppLayout>
-      <div style={{ maxWidth: "600px", margin: "50px auto" }}>
-        <h2>Статус заявки</h2>
+      <PageWrapper>
+        <Title>Статус заявки</Title>
         <p>
           <b>Название:</b> {request.title}
         </p>
@@ -31,7 +32,7 @@ const RequestStatusPage: React.FC = () => {
         <p>
           <b>Email:</b> {request.email}
         </p>
-      </div>
+      </PageWrapper>
     </AppLayout>
   );
 };

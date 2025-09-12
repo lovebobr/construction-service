@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { observer } from "mobx-react-lite";
 import { authStore } from "../store/auth.store";
 import styled from "styled-components";
-import { LogOut, LogIn } from "lucide-react";
+import { LogOut, LogIn, ArrowLeft } from "lucide-react";
 import { PATHS } from "../../paths";
 
 const LayoutWrapper = styled.div`
@@ -10,6 +10,26 @@ const LayoutWrapper = styled.div`
   min-height: 100vh;
   background: var(--color-bg);
   font-family: Arial, sans-serif;
+`;
+const BackButton = styled.button`
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 12px;
+  font-size: 14px;
+  font-weight: bold;
+  background-color: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    background-color: var(--color-primary-hover);
+  }
 `;
 
 const ActionWrapper = styled.div`
@@ -25,10 +45,10 @@ const ActionWrapper = styled.div`
 
   background: none;
   border: none;
-  color: #333;
+  color: var(--color-text);
 
   &:hover {
-    color: #007bff;
+    color: var(--color-primary);
   }
 
   svg {
@@ -37,7 +57,7 @@ const ActionWrapper = styled.div`
 `;
 
 const ContentWrapper = styled.div`
-  max-width: 800px;
+  max-width: 90%;
   margin: 0 auto;
   padding: 50px 20px 20px;
 `;
@@ -57,6 +77,12 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = observer(
 
     return (
       <LayoutWrapper>
+        {location.pathname !== PATHS.USER &&
+          authStore.user?.role !== "manager" && (
+            <BackButton onClick={() => navigate(-1)}>
+              <ArrowLeft size={16} /> Назад
+            </BackButton>
+          )}
         {authStore.isAuthenticated ? (
           <ActionWrapper onClick={handleLogout}>
             <LogOut size={16} /> Выйти

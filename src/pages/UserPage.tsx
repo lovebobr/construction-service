@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { authStore } from "../app/store/auth.store";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import {
   uploadFile,
   createRequest,
@@ -9,7 +10,6 @@ import {
 } from "../api/requestsApi";
 import {
   PageWrapper,
-  Title,
   Form,
   Input,
   TextArea,
@@ -19,9 +19,18 @@ import {
   Inputs,
 } from "./UserPage.styles";
 import { Tab, Tabs } from "./Tabs.styles";
-import { Table, Th, Td, TableWrapper } from "./Table.styles";
 import AppLayout from "../app/components/AppLayout";
-
+import {
+  PageButton,
+  PageInfo,
+  PaginationWrapper,
+  StatusBadge,
+  Td,
+  Th,
+  Table,
+} from "./RequestTab.styles";
+import { Link } from "react-router-dom";
+const REQUESTS_PER_PAGE = 5;
 const UserPage = observer(() => {
   const [activeTab, setActiveTab] = useState<"form" | "requests">("form");
 
@@ -35,6 +44,21 @@ const UserPage = observer(() => {
   const [loading, setLoading] = useState(false);
   const [statusLink, setStatusLink] = useState<string | null>(null);
   const [userRequests, setUserRequests] = useState<any[]>([]);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const totalPages = Math.max(
+    1,
+    Math.ceil(userRequests.length / REQUESTS_PER_PAGE)
+  );
+
+  useEffect(() => {
+    getObjects().then(setObjects);
+
+    if (authStore.isAuthenticated && authStore.user?.id) {
+      getRequestsByUserId(authStore.user.id).then(setUserRequests);
+    }
+  }, [authStore.isAuthenticated, authStore.user?.id]);
 
   useEffect(() => {
     getObjects().then(setObjects).catch(console.error);
@@ -73,25 +97,29 @@ const UserPage = observer(() => {
       if (authStore.isAuthenticated && authStore.user?.id) {
         payload.user_id = authStore.user.id;
       }
-
       const newRequest = await createRequest(payload);
-
+      setUserRequests((prev) => [newRequest, ...prev]);
       setStatusLink(`/status/${newRequest.id}`);
       setTitle("");
       setDescription("");
-      setEmail("");
       setObjectId("");
+      setEmail("");
+      setStatusLink("");
       setFile(null);
-
-      if (authStore.isAuthenticated && authStore.user?.id) {
-        setUserRequests((prev) => [...prev, newRequest]);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
       }
-    } catch (err) {
-      console.error("Ошибка при создании заявки:", err);
+    } catch (error) {
+      console.error(error);
     } finally {
       setLoading(false);
     }
   };
+
+  const displayedRequests = userRequests.slice(
+    (currentPage - 1) * REQUESTS_PER_PAGE,
+    currentPage * REQUESTS_PER_PAGE
+  );
 
   return (
     <AppLayout>
@@ -148,6 +176,7 @@ const UserPage = observer(() => {
               ))}
             </Select>
             <Inputs
+              ref={fileInputRef}
               type="file"
               onChange={(e) => setFile(e.target.files?.[0] || null)}
             />
@@ -165,8 +194,8 @@ const UserPage = observer(() => {
         )}
         {activeTab === "requests" && authStore.isAuthenticated && (
           <>
-            {userRequests.length > 0 ? (
-              <TableWrapper>
+            {displayedRequests.length > 0 ? (
+              <div>
                 <Table>
                   <thead>
                     <tr>
@@ -176,18 +205,40 @@ const UserPage = observer(() => {
                     </tr>
                   </thead>
                   <tbody>
-                    {userRequests.map((r) => (
+                    {displayedRequests.map((r) => (
                       <tr key={r.id}>
                         <Td>{r.title}</Td>
-                        <Td>{r.status}</Td>
                         <Td>
-                          <a href={`/status/${r.id}`}>Смотреть</a>
+                          <StatusBadge $status={r.status}>
+                            {r.status}
+                          </StatusBadge>
+                        </Td>
+                        <Td>
+                          <Link to={`/status/${r.id}`}>Смотреть</Link>
                         </Td>
                       </tr>
                     ))}
                   </tbody>
                 </Table>
-              </TableWrapper>
+
+                <PaginationWrapper>
+                  <PageButton
+                    disabled={currentPage === 1}
+                    onClick={() => setCurrentPage((p) => p - 1)}
+                  >
+                    <ArrowLeft size={18} />
+                  </PageButton>
+                  <PageInfo>
+                    {currentPage} из {totalPages}
+                  </PageInfo>
+                  <PageButton
+                    disabled={currentPage >= totalPages}
+                    onClick={() => setCurrentPage((p) => p + 1)}
+                  >
+                    <ArrowRight size={18} />
+                  </PageButton>
+                </PaginationWrapper>
+              </div>
             ) : (
               <p>У вас ещё нет заявок</p>
             )}
