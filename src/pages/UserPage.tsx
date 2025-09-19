@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { authStore } from "../app/store/auth.store";
 import { ArrowLeft, ArrowRight } from "lucide-react";
+import { Overlay, CloseButton, ModalContainer } from "./UserPage.styles";
 import {
   uploadFile,
   createRequest,
@@ -46,6 +47,8 @@ const UserPage = observer(() => {
   const [userRequests, setUserRequests] = useState<any[]>([]);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [modalMessage, setModalMessage] = useState<string | null>(null);
+  const [modalType, setModalType] = useState<"success" | "error">("success");
 
   const totalPages = Math.max(
     1,
@@ -109,8 +112,13 @@ const UserPage = observer(() => {
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
+      setModalType("success");
+      setModalMessage("Ваша заявка успешно отправлена!");
     } catch (error) {
       console.error(error);
+      console.error(error);
+      setModalType("error");
+      setModalMessage("Произошла ошибка при отправке заявки.");
     } finally {
       setLoading(false);
     }
@@ -124,6 +132,23 @@ const UserPage = observer(() => {
   return (
     <AppLayout>
       <PageWrapper>
+        {modalMessage && (
+          <Overlay onClick={() => setModalMessage(null)}>
+            <ModalContainer
+              $type={modalType === "success" ? "success" : "error"}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h3>{modalType === "success" ? "Успешно" : "Ошибка"}</h3>
+              <p>{modalMessage}</p>
+              <CloseButton
+                $type={modalType === "success" ? "success" : "error"}
+                onClick={() => setModalMessage(null)}
+              >
+                Закрыть
+              </CloseButton>
+            </ModalContainer>
+          </Overlay>
+        )}
         <Tabs>
           <Tab
             $active={activeTab === "form"}

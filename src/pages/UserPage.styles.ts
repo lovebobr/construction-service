@@ -137,3 +137,50 @@ export const Tab = styled.span<{ active?: boolean }>`
     width: 100%;
   }
 `;
+
+export const Overlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+`;
+
+export const ModalContainer = styled.div<{ $type: "success" | "error" }>`
+  background-color: #fff;
+  border-radius: 12px;
+  padding: 30px 40px;
+  text-align: center;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  min-width: 300px;
+  max-width: 400px;
+
+  h3 {
+    color: ${({ $type }) => ($type === "success" ? "#4caf50" : "#f44336")};
+    margin-bottom: 15px;
+    font-size: 20px;
+  }
+`;
+
+export const CloseButton = styled.button<{ $type: "success" | "error" }>`
+  margin-top: 20px;
+  padding: 8px 20px;
+  border-radius: 8px;
+  border: none;
+  background-color: ${({ $type }) =>
+    $type === "success" ? "#4caf50" : "#f44336"};
+  color: white;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: ${({ $type }) =>
+      $type === "success" ? "#43a047" : "#d32f2f"};
+  }
+`;
